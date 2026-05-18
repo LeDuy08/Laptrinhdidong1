@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../backend/travel_repository.dart';
 import '../widgets/journey_card.dart';
 // Import trang Add Journey để thực hiện chuyển cảnh
 import 'add_journey_screen.dart'; 
 
 class MyJourneysScreen extends StatelessWidget {
-  const MyJourneysScreen({super.key});
+  final TravelRepository repository;
+
+  const MyJourneysScreen({super.key, required this.repository});
 
   @override
   Widget build(BuildContext context) {
@@ -42,24 +45,15 @@ class MyJourneysScreen extends StatelessWidget {
                       _buildAddJourneyButton(context),
 
                       // 4. DANH SÁCH CÁC KỶ NIỆM
-                      const JourneyCard(
-                        title: "A memory in Danang",
-                        location: "Danang, Vietnam",
-                        date: "Jan 20, 2020",
-                        mainImg: 'assets/images/07.png',
-                        sideImg1: 'assets/images/08.png',
-                        sideImg2: 'assets/images/09.png',
-                      ),
-                      
-                      const JourneyCard(
-                        title: "Sapa in spring",
-                        location: "Sapa, Vietnam",
-                        date: "Jan 20, 2020",
-                        mainImg: 'assets/images/010.png',
-                        sideImg1: 'assets/images/011.png', 
-                        sideImg2: 'assets/images/012.png',
-                        remainingImages: 6, // Hiển thị số +6 trên ảnh
-                      ),
+                      ...repository.journeys.map((journey) => JourneyCard(
+                        title: journey.title,
+                        location: journey.location,
+                        date: journey.date,
+                        mainImg: journey.mainImage,
+                        sideImg1: journey.sideImage1,
+                        sideImg2: journey.sideImage2,
+                        remainingImages: journey.remainingImages > 0 ? journey.remainingImages : null,
+                      )),
                       const SizedBox(height: 20),
                     ],
                   ),
@@ -89,7 +83,7 @@ class MyJourneysScreen extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const AddJourneyScreen()),
+          MaterialPageRoute(builder: (context) => AddJourneyScreen(repository: repository)),
         );
       },
       child: Padding(

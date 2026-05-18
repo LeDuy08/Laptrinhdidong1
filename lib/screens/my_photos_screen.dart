@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
-// Nhớ import trang AddPhotosScreen vào đây
+import '../backend/travel_repository.dart';
 import 'add_photos_screen.dart'; 
 
 class MyPhotosScreen extends StatelessWidget {
-  const MyPhotosScreen({super.key});
+  final TravelRepository repository;
+
+  const MyPhotosScreen({super.key, required this.repository});
 
   @override
   Widget build(BuildContext context) {
@@ -35,29 +37,27 @@ class MyPhotosScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Column(
                     children: [
-                      // --- HÀNG 1: 3 Ô (Truyền context vào hàm Add Photo) ---
                       Row(
                         children: [
                           Expanded(child: _buildAddPhotoButton(context)), 
                           const SizedBox(width: 5),
-                          Expanded(child: _buildImageItem('assets/images/03.png')),
+                          if (repository.photos.length > 0) Expanded(child: _buildImageItem(repository.photos[0].assetPath)),
                           const SizedBox(width: 5),
-                          Expanded(child: _buildImageItem('assets/images/04.png')),
+                          if (repository.photos.length > 1) Expanded(child: _buildImageItem(repository.photos[1].assetPath)),
                         ],
                       ),
                       const SizedBox(height: 5),
 
-                      _buildImageItem('assets/images/06.png', height: 200),
-                      
+                      if (repository.photos.length > 2) _buildImageItem(repository.photos[2].assetPath, height: 200),
                       const SizedBox(height: 5),
 
                       Row(
                         children: [
-                          Expanded(child: _buildImageItem('assets/images/05.png')),
+                          if (repository.photos.length > 3) Expanded(child: _buildImageItem(repository.photos[3].assetPath)),
                           const SizedBox(width: 5),
-                          Expanded(child: _buildImageItem('assets/images/03.png')),
+                          if (repository.photos.length > 4) Expanded(child: _buildImageItem(repository.photos[4].assetPath)),
                           const SizedBox(width: 5),
-                          Expanded(child: _buildImageItem('assets/images/04.png')),
+                          if (repository.photos.length > 5) Expanded(child: _buildImageItem(repository.photos[5].assetPath)),
                         ],
                       ),
                       const SizedBox(height: 20),
@@ -88,7 +88,7 @@ class MyPhotosScreen extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const AddPhotosScreen()),
+          MaterialPageRoute(builder: (context) => AddPhotosScreen(repository: repository)),
         );
       },
       child: AspectRatio(

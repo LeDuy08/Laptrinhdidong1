@@ -1,23 +1,31 @@
 import 'package:flutter/material.dart';
 
-class AddPhotosScreen extends StatelessWidget {
-  const AddPhotosScreen({super.key});
+import '../backend/travel_repository.dart';
+
+class AddPhotosScreen extends StatefulWidget {
+  final TravelRepository repository;
+
+  const AddPhotosScreen({super.key, required this.repository});
+
+  @override
+  State<AddPhotosScreen> createState() => _AddPhotosScreenState();
+}
+
+class _AddPhotosScreenState extends State<AddPhotosScreen> {
+  final List<Map<String, dynamic>> photoList = [
+    {'path': 'assets/images/03.png', 'selected': false},
+    {'path': 'assets/images/04.png', 'selected': true},
+    {'path': 'assets/images/07.png', 'selected': false},
+    {'path': 'assets/images/010.png', 'selected': false},
+    {'path': 'assets/images/05.png', 'selected': true},
+    {'path': 'assets/images/07.png', 'selected': true},
+    {'path': 'assets/images/08.png', 'selected': false},
+    {'path': 'assets/images/04.png', 'selected': false},
+  ];
 
   @override
   Widget build(BuildContext context) {
     const double mobileWidth = 450;
-
-    // Danh sách ảnh giả lập để hiển thị
-    final List<Map<String, dynamic>> photoList = [
-      {'path': 'assets/images/03.png', 'selected': false},
-      {'path': 'assets/images/04.png', 'selected': true},
-      {'path': 'assets/images/07.png', 'selected': false},
-      {'path': 'assets/images/010.png', 'selected': false},
-      {'path': 'assets/images/05.png', 'selected': true},
-      {'path': 'assets/images/07.png', 'selected': true},
-      {'path': 'assets/images/08.png', 'selected': false},
-      {'path': 'assets/images/04.png', 'selected': false},
-    ];
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -74,6 +82,21 @@ class AddPhotosScreen extends StatelessWidget {
     );
   }
 
+  void _onTakePhotoTapped() {
+    const newPhotoPath = 'assets/images/06.png';
+    widget.repository.addPhoto(newPhotoPath);
+    setState(() {
+      photoList.insert(1, {'path': newPhotoPath, 'selected': true});
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Photo added successfully'),
+        duration: Duration(milliseconds: 900),
+      ),
+    );
+  }
+
   // Widget: Header App Bar với chữ DONE màu xanh Mint
   Widget _buildAppBar(BuildContext context) {
     return Padding(
@@ -90,9 +113,11 @@ class AddPhotosScreen extends StatelessWidget {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              Navigator.pop(context);
+            },
             child: const Text(
-              "DONE",
+              'DONE',
               style: TextStyle(
                 color: Color(0xFF00D1B2),
                 fontWeight: FontWeight.bold,
@@ -107,20 +132,23 @@ class AddPhotosScreen extends StatelessWidget {
 
   // Widget: Ô đầu tiên - Take Photo
   Widget _buildTakePhotoButton() {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFF00D1B2).withOpacity(0.3)),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
-          Icon(Icons.camera_alt, color: Color(0xFF00D1B2), size: 30),
-          SizedBox(height: 5),
-          Text(
-            "Take Photo",
-            style: TextStyle(color: Color(0xFF00D1B2), fontSize: 12, fontWeight: FontWeight.w500),
-          ),
-        ],
+    return GestureDetector(
+      onTap: _onTakePhotoTapped,
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: const Color(0xFF00D1B2).withOpacity(0.3)),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(Icons.camera_alt, color: Color(0xFF00D1B2), size: 30),
+            SizedBox(height: 5),
+            Text(
+              "Take Photo",
+              style: TextStyle(color: Color(0xFF00D1B2), fontSize: 12, fontWeight: FontWeight.w500),
+            ),
+          ],
+        ),
       ),
     );
   }

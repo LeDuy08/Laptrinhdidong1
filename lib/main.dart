@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'backend/travel_repository.dart';
 import 'screens/profile_screen.dart'; // Import trang Profile
 
 void main() {
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Travel App',
       theme: ThemeData(primarySwatch: Colors.teal),
-      home: const ProfileScreen(), // Gọi trang Profile từ file khác
+      home: ProfileScreen(repository: TravelRepository()),
     );
   }
 }

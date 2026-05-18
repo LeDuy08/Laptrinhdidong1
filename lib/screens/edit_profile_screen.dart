@@ -1,9 +1,52 @@
 import 'package:flutter/material.dart';
 
+import '../backend/travel_repository.dart';
 import 'change_password_screen.dart';
 
-class EditProfileScreen extends StatelessWidget {
-  const EditProfileScreen({super.key});
+class EditProfileScreen extends StatefulWidget {
+  final TravelRepository repository;
+
+  const EditProfileScreen({super.key, required this.repository});
+
+  @override
+  State<EditProfileScreen> createState() => _EditProfileScreenState();
+}
+
+class _EditProfileScreenState extends State<EditProfileScreen> {
+  late final TextEditingController _firstNameController;
+  late final TextEditingController _lastNameController;
+  late final TextEditingController _emailController;
+  late final TextEditingController _passwordController;
+  final List<String> _avatarOptions = [
+    'assets/images/02.png',
+    'assets/images/014.png',
+    'assets/images/018.png',
+    'assets/images/03.png',
+  ];
+  final List<String> _coverOptions = [
+    'assets/images/01.png',
+    'assets/images/07.png',
+    'assets/images/010.png',
+    'assets/images/017.png',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _firstNameController = TextEditingController(text: widget.repository.userProfile.firstName);
+    _lastNameController = TextEditingController(text: widget.repository.userProfile.lastName);
+    _emailController = TextEditingController(text: widget.repository.userProfile.email);
+    _passwordController = TextEditingController(text: '••••••');
+  }
+
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,28 +78,30 @@ class EditProfileScreen extends StatelessWidget {
                   child: Column(
                     children: [
                       const SizedBox(height: 25),
-                      
+                      _buildEditableCover(),
+
+                      const SizedBox(height: 20),
                       _buildEditableAvatar(),
 
                       const SizedBox(height: 45),
 
-                      // Hàng nhập tên: Chữ đậm và to
                       Row(
                         children: [
-                          Expanded(child: _buildTextField("First Name", "Yoo")),
+                          Expanded(child: _buildTextField('First Name', _firstNameController)),
                           const SizedBox(width: 20),
-                          Expanded(child: _buildTextField("Last Name", "Jin")),
+                          Expanded(child: _buildTextField('Last Name', _lastNameController)),
                         ],
                       ),
 
+                      const SizedBox(height: 25),
+                      _buildTextField('Email', _emailController),
+
                       const SizedBox(height: 35),
 
-                      // Trường Password: Dấu chấm to và đậm
-                      _buildTextField("Password", "••••••", isPassword: true),
+                      _buildTextField('Password', _passwordController, isPassword: true),
 
                       const SizedBox(height: 20),
 
-                      // Nút Change Password: Đậm nét hơn
                       Align(
                         alignment: Alignment.centerLeft,
                         child: TextButton(
@@ -67,11 +112,11 @@ class EditProfileScreen extends StatelessWidget {
                             );
                           },
                           child: const Text(
-                            "Change Password",
+                            'Change Password',
                             style: TextStyle(
-                              color: Color(0xFF00D1B2), 
-                              fontWeight: FontWeight.w900, // Cực đậm
-                              fontSize: 16, // To hơn một chút
+                              color: Color(0xFF00D1B2),
+                              fontWeight: FontWeight.w900,
+                              fontSize: 16,
                             ),
                           ),
                         ),
@@ -80,8 +125,6 @@ class EditProfileScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              
-              // Thanh bar iPhone
               Container(
                 height: 5,
                 width: 140,
@@ -136,13 +179,20 @@ class EditProfileScreen extends StatelessWidget {
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              widget.repository.updateProfile(
+                firstName: _firstNameController.text,
+                lastName: _lastNameController.text,
+                email: _emailController.text,
+              );
+              Navigator.pop(context);
+            },
             child: const Text(
-              "SAVE",
+              'SAVE',
               style: TextStyle(
-                color: Color(0xFF00D1B2), 
-                fontWeight: FontWeight.w900, 
-                fontSize: 17
+                color: Color(0xFF00D1B2),
+                fontWeight: FontWeight.w900,
+                fontSize: 17,
               ),
             ),
           ),
@@ -151,35 +201,174 @@ class EditProfileScreen extends StatelessWidget {
     );
   }
 
-  // Widget: Avatar
-  Widget _buildEditableAvatar() {
-    return Stack(
+  // Widget: Cover Image
+  Widget _buildEditableCover() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const CircleAvatar(
-          radius: 60,
-          backgroundImage: AssetImage('assets/images/02.png'),
-        ),
-        Positioned(
-          right: 0,
-          top: 5,
-          child: Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: const Color(0xFF00D1B2),
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 2),
+        Stack(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: Image.asset(
+                widget.repository.userProfile.coverImage,
+                width: double.infinity,
+                height: 160,
+                fit: BoxFit.cover,
+              ),
             ),
-            child: const Icon(Icons.camera_alt, color: Colors.white, size: 18),
+            Positioned(
+              right: 12,
+              top: 12,
+              child: GestureDetector(
+                onTap: _showCoverSelection,
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.5),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.camera_alt, color: Colors.white, size: 18),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        TextButton(
+          onPressed: _showCoverSelection,
+          child: const Text(
+            'Change Cover Photo',
+            style: TextStyle(
+              color: Color(0xFF00D1B2),
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ],
     );
   }
 
+  // Widget: Avatar
+  Widget _buildEditableAvatar() {
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: _showAvatarSelection,
+          child: Stack(
+            children: [
+              CircleAvatar(
+                radius: 60,
+                backgroundImage: AssetImage(widget.repository.userProfile.avatarImage),
+              ),
+              Positioned(
+                right: 0,
+                top: 5,
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF00D1B2),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                  child: const Icon(Icons.camera_alt, color: Colors.white, size: 18),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        TextButton(
+          onPressed: _showAvatarSelection,
+          child: const Text(
+            'Change Avatar',
+            style: TextStyle(
+              color: Color(0xFF00D1B2),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showAvatarSelection() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: Text(
+                  'Choose avatar',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const Divider(height: 1),
+              ..._avatarOptions.map(
+                (path) => ListTile(
+                  leading: CircleAvatar(backgroundImage: AssetImage(path)),
+                  title: const Text('Select this avatar'),
+                  onTap: () {
+                    setState(() {
+                      widget.repository.updateAvatar(path);
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showCoverSelection() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: Text(
+                  'Choose cover photo',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const Divider(height: 1),
+              ..._coverOptions.map(
+                (path) => ListTile(
+                  leading: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.asset(path, width: 50, height: 50, fit: BoxFit.cover),
+                  ),
+                  title: const Text('Select this cover'),
+                  onTap: () {
+                    setState(() {
+                      widget.repository.updateCoverImage(path);
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   // --- HÀM ĐÃ SỬA: CHỮ ĐẬM VÀ TO HƠN CHO TRANG EDIT ---
-  Widget _buildTextField(String label, String initialValue, {bool isPassword = false}) {
+  Widget _buildTextField(String label, TextEditingController controller, {bool isPassword = false}) {
     return TextFormField(
-      initialValue: initialValue,
+      controller: controller,
       obscureText: isPassword,
       cursorColor: const Color(0xFF00D1B2),
       style: TextStyle(

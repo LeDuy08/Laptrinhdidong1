@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../backend/travel_repository.dart';
+
 class NotificationsScreen extends StatelessWidget {
-  const NotificationsScreen({super.key});
+  final TravelRepository repository;
+
+  const NotificationsScreen({super.key, required this.repository});
 
   @override
   Widget build(BuildContext context) {
@@ -29,32 +33,21 @@ class NotificationsScreen extends StatelessWidget {
 
               // 2. DANH SÁCH THÔNG BÁO
               Expanded(
-                child: ListView(
-                  padding: EdgeInsets.zero, // Sát lên phần header
-                  children: [
-                    _buildNotificationItem(
-                      avatar: 'assets/images/014.png', // Tạm dùng avatar có sẵn
-                      statusIcon: Icons.location_on,
-                      badgeColor: Colors.lightGreen,
-                      content: "Tuan Tran accepted your request for the trip in Danang, Vietnam on Jan 20, 2020",
-                      time: "Jan 16",
-                    ),
-                    _buildNotificationItem(
-                      avatar: 'assets/images/015.png',
-                      statusIcon: Icons.assignment,
-                      badgeColor: Colors.orange,
-                      content: "Emmy sent you an offer for the trip in Ho Chi Minh, Vietnam on Feb 12, 2020",
-                      time: "Jan 16",
-                    ),
-                    _buildNotificationItem(
-                      isSystem: true, // Thông báo từ hệ thống (chữ b)
-                      statusIcon: Icons.edit,
-                      badgeColor: Colors.blue,
-                      content: "Thanks! Your trip in Danang, Vietnam on Jan 20, 2020 has been finished. Please leave a review for the guide Tuan Tran.",
-                      time: "Jan 24",
-                      showButton: true,
-                    ),
-                  ],
+                child: ListView.builder(
+                  padding: EdgeInsets.zero,
+                  itemCount: repository.notifications.length,
+                  itemBuilder: (context, index) {
+                    final item = repository.notifications[index];
+                    return _buildNotificationItem(
+                      avatar: item.isSystem ? null : 'assets/images/014.png',
+                      statusIcon: item.isSystem ? Icons.edit : Icons.location_on,
+                      badgeColor: item.isSystem ? Colors.blue : Colors.lightGreen,
+                      content: item.content,
+                      time: item.time,
+                      isSystem: item.isSystem,
+                      showButton: item.showButton,
+                    );
+                  },
                 ),
               ),
 

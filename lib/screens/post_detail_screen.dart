@@ -71,7 +71,7 @@ class PostDetailScreen extends StatelessWidget {
                             
                             const Text(
                               "It was popularised in the 1960s with the release of Letraset sheets (Link)",
-                              style: TextStyle(color: Color(0xFF00D1B2), decoration: TextDecoration.underline),
+                              style: TextStyle(color: Color(0xFF00D1B2)),
                             ),
                             const SizedBox(height: 25),
 
@@ -231,7 +231,6 @@ class PostDetailScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(15),
           child: Image.asset('assets/images/019.png', height: 220, width: double.infinity, fit: BoxFit.cover),
         ),
-        const Icon(Icons.play_circle_fill, color: Color(0xFF00D1B2), size: 60), 
       ],
     );
   }
@@ -284,7 +283,7 @@ class PostDetailScreen extends StatelessWidget {
                   Text("Chin-Hwa Lee", style: TextStyle(fontWeight: FontWeight.bold)),
                   Text("Mar 10, 2020", style: TextStyle(color: Colors.grey, fontSize: 12)),
                   SizedBox(height: 8),
-                  Text("This is an amazing trip! I want to visit here someday.", style: TextStyle(fontSize: 14, height: 1.4)),
+                  Text("It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.", style: TextStyle(fontSize: 14, height: 1.4)),
                 ],
               ),
             ),

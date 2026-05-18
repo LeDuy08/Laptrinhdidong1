@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../backend/travel_repository.dart';
 import '../widgets/journey_card.dart';
 import 'my_journeys_screen.dart';
 import 'my_photos_screen.dart';
@@ -7,9 +8,16 @@ import 'my_photos_screen.dart';
 import 'notifications_screen.dart';
 import 'settings_screen.dart'; 
 
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+class ProfileScreen extends StatefulWidget {
+  final TravelRepository repository;
 
+  const ProfileScreen({super.key, required this.repository});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     const double mobileWidth = 450;
@@ -46,7 +54,7 @@ class ProfileScreen extends StatelessWidget {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const MyPhotosScreen()),
+                            MaterialPageRoute(builder: (context) => MyPhotosScreen(repository: widget.repository)),
                           );
                         },
                         child: _buildSectionTitle("My Photos"),
@@ -58,27 +66,20 @@ class ProfileScreen extends StatelessWidget {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const MyJourneysScreen()),
+                            MaterialPageRoute(builder: (context) => MyJourneysScreen(repository: widget.repository)),
                           );
                         },
                         child: _buildSectionTitle("My Journeys"),
                       ),
-                      const JourneyCard(
-                        title: "A memory in Danang",
-                        location: "Danang, Vietnam",
-                        date: "Jan 20, 2020",
-                        mainImg: 'assets/images/07.png',
-                        sideImg1: 'assets/images/08.png',
-                        sideImg2: 'assets/images/09.png',
-                      ),
-                      const JourneyCard(
-                        title: "Sapa in spring",
-                        location: "Sapa, Vietnam",
-                        date: "Mar 15, 2021",
-                        mainImg: 'assets/images/010.png',
-                        sideImg1: 'assets/images/011.png',
-                        sideImg2: 'assets/images/012.png',
-                      ),
+                      ...widget.repository.journeys.map((journey) => JourneyCard(
+                        title: journey.title,
+                        location: journey.location,
+                        date: journey.date,
+                        mainImg: journey.mainImage,
+                        sideImg1: journey.sideImage1,
+                        sideImg2: journey.sideImage2,
+                        remainingImages: journey.remainingImages > 0 ? journey.remainingImages : null,
+                      )),
                       const SizedBox(height: 20),
                     ],
                   ),
@@ -124,7 +125,7 @@ class ProfileScreen extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         Image.asset(
-          'assets/images/01.png',
+          widget.repository.userProfile.coverImage,
           height: 180,
           width: double.infinity,
           fit: BoxFit.cover,
@@ -134,7 +135,8 @@ class ProfileScreen extends StatelessWidget {
           right: 15, 
           child: GestureDetector(
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsScreen(repository: widget.repository)))
+                .then((_) => setState(() {}));
             },
             child: const Icon(Icons.settings, color: Colors.white, size: 20),
           ),
@@ -155,9 +157,9 @@ class ProfileScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(3),
                     decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                    child: const CircleAvatar(
+                    child: CircleAvatar(
                       radius: 45,
-                      backgroundImage: AssetImage('assets/images/02.png'),
+                      backgroundImage: AssetImage(widget.repository.userProfile.avatarImage),
                     ),
                   ),
                   Positioned(
@@ -181,9 +183,9 @@ class ProfileScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Text("Yoo Jin", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                      Text("yoojin@gmail.com", style: TextStyle(color: Colors.grey, fontSize: 12)),
+                    children: [
+                      Text(widget.repository.userProfile.fullName, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                      Text(widget.repository.userProfile.email, style: const TextStyle(color: Colors.grey, fontSize: 12)),
                     ],
                   ),
                 ),
@@ -217,21 +219,22 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildPhotoGrid() {
+    final photos = widget.repository.photos;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         children: [
           Row(
             children: [
-              Expanded(child: _buildRoundedImage('assets/images/03.png', 110)),
+              Expanded(child: _buildRoundedImage(photos[0].assetPath, 110)),
               const SizedBox(width: 5),
-              Expanded(child: _buildRoundedImage('assets/images/04.png', 110)),
+              Expanded(child: _buildRoundedImage(photos[1].assetPath, 110)),
               const SizedBox(width: 5),
-              Expanded(child: _buildRoundedImage('assets/images/05.png', 110)),
+              Expanded(child: _buildRoundedImage(photos[2].assetPath, 110)),
             ],
           ),
           const SizedBox(height: 5),
-          _buildRoundedImage('assets/images/06.png', 150),
+          _buildRoundedImage(photos[3].assetPath, 150),
         ],
       ),
     );
@@ -256,22 +259,22 @@ class ProfileScreen extends StatelessWidget {
         if (index == 3) {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const NotificationsScreen()),
+            MaterialPageRoute(builder: (context) => NotificationsScreen(repository: widget.repository)),
           );
         }
       },
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), label: ''),
-        BottomNavigationBarItem(icon: Icon(Icons.location_on_outlined), label: ''),
-        BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: ''),
+      items: [
+        const BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), label: ''),
+        const BottomNavigationBarItem(icon: Icon(Icons.location_on_outlined), label: ''),
+        const BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: ''),
         BottomNavigationBarItem(
           icon: Badge(
-            label: Text("2"), // Hiện số 2 thông báo như hình mẫu
-            child: Icon(Icons.notifications_none),
+            label: Text('${widget.repository.unreadNotificationCount}'),
+            child: const Icon(Icons.notifications_none),
           ),
           label: 'Notifications',
         ),
-        BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+        const BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
       ],
     );
   }

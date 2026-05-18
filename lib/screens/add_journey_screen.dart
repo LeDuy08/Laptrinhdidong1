@@ -1,11 +1,29 @@
 import 'package:flutter/material.dart';
 
-class AddJourneyScreen extends StatelessWidget {
-  const AddJourneyScreen({super.key});
+import '../backend/travel_repository.dart';
+
+class AddJourneyScreen extends StatefulWidget {
+  final TravelRepository repository;
+
+  const AddJourneyScreen({super.key, required this.repository});
+
+  @override
+  State<AddJourneyScreen> createState() => _AddJourneyScreenState();
+}
+
+class _AddJourneyScreenState extends State<AddJourneyScreen> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _locationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Giới hạn chiều rộng 450px để chạy Web trông như điện thoại
     const double mobileWidth = 450;
 
     return Scaffold(
@@ -40,12 +58,12 @@ class AddJourneyScreen extends StatelessWidget {
                       const SizedBox(height: 10),
 
                       // 3. Ô NHẬP TÊN HÀNH TRÌNH
-                      _buildTextField("Name", "Journey's Name"),
+                      _buildTextField('Name', 'Journey\'s Name', controller: _nameController),
                       
                       const SizedBox(height: 35),
 
                       // 4. Ô NHẬP ĐỊA ĐIỂM
-                      _buildTextField("Location", "Location of Journey"),
+                      _buildTextField('Location', 'Location of Journey', controller: _locationController),
 
                       const SizedBox(height: 40),
 
@@ -114,9 +132,21 @@ class AddJourneyScreen extends StatelessWidget {
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              if (_nameController.text.isNotEmpty && _locationController.text.isNotEmpty) {
+                widget.repository.addJourney(
+                  title: _nameController.text,
+                  location: _locationController.text,
+                  date: 'Today',
+                  mainImage: 'assets/images/07.png',
+                  sideImage1: 'assets/images/08.png',
+                  sideImage2: 'assets/images/09.png',
+                );
+              }
+              Navigator.pop(context);
+            },
             child: const Text(
-              "DONE",
+              'DONE',
               style: TextStyle(
                 color: Color(0xFF00D1B2),
                 fontWeight: FontWeight.w900,
@@ -130,8 +160,9 @@ class AddJourneyScreen extends StatelessWidget {
   }
 
   // Widget: Ô nhập liệu (Chữ to, đậm, gạch chân)
-  Widget _buildTextField(String label, String hint) {
+  Widget _buildTextField(String label, String hint, {required TextEditingController controller}) {
     return TextFormField(
+      controller: controller,
       cursorColor: const Color(0xFF00D1B2),
       style: const TextStyle(
         fontSize: 18,

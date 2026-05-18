@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
-// Đừng quên import trang Edit Profile vào đây
+import '../backend/travel_repository.dart';
 import 'edit_profile_screen.dart'; 
 
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
+  final TravelRepository repository;
+
+  const SettingsScreen({super.key, required this.repository});
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +56,7 @@ class SettingsScreen extends StatelessWidget {
                               trailing: Switch(
                                 value: true,
                                 onChanged: (val) {},
-                                activeColor: Colors.white,
+                                activeThumbColor: Colors.white,
                                 activeTrackColor: const Color(0xFF00D1B2),
                               ),
                             ),
@@ -159,22 +161,22 @@ class SettingsScreen extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const CircleAvatar(
+          CircleAvatar(
             radius: 35,
-            backgroundImage: AssetImage('assets/images/02.png'),
+            backgroundImage: AssetImage(repository.userProfile.avatarImage),
           ),
           const SizedBox(width: 15),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
-                  "Yoo Jin",
-                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                  repository.userProfile.fullName,
+                  style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  "Traveler",
-                  style: TextStyle(color: Colors.white70, fontSize: 14),
+                  repository.userProfile.role,
+                  style: const TextStyle(color: Colors.white70, fontSize: 14),
                 ),
               ],
             ),
@@ -184,7 +186,7 @@ class SettingsScreen extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const EditProfileScreen()),
+                MaterialPageRoute(builder: (context) => EditProfileScreen(repository: repository)),
               );
             },
             child: Container(
